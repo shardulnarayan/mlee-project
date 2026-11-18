@@ -90,7 +90,7 @@ PJ measured the saved file lengths of each raw and processed image pair, using t
 
 The processed dataset used 18.83 MB compared with 96.11 MB for the same raw files, a saving of 77.27 MB (1 MB = 1,000,000 bytes). These figures reflect the full preprocessing pipeline and its saved outputs, including resizing and encoding. The contribution of individual preprocessing stages to the storage change was unmeasured.
 
-The classification results compare the three models on processed inputs. AP's matched raw-versus-processed experiment is in progress and will provide the evidence for whether preprocessing changed classification performance.
+The three-model comparison uses processed inputs. AP's raw-versus-DIP MobileNetV2 comparison is available in [the raw/DIP table](../results/metrics/pj_cnn_raw_vs_dip.csv) and interpreted below.
 
 ## MobileNetV2 model storage before and after quantization
 
@@ -118,3 +118,6 @@ PJ cross-validated three previously selected classical configurations on the 1,0
 The LBP + colour Random Forest had the highest mean macro-F1 among the three configurations. Its Leaf Miner recall ranged from 16.67% to 84.62%, showing how strongly recall varied with the held-out groups despite consistently high overall accuracy. The sample SD describes variation across these five folds. The configurations were chosen in earlier analyses on this same dataset, so this is a stability check of fixed configurations. An independent assessment of model selection would require nested CV or fresh data. AP's MobileNetV2 checkpoint has already seen some would-be held-out images, so CNN and hybrid cross-validation require fold-specific training.
 
 Run `python -u -m src.classical_ml.group_cross_validation`. See the [fold metrics](../results/metrics/group_cv_folds.csv), [mean and SD for all metrics](../results/metrics/group_cv_summary.csv), and [fold membership](../results/metrics/group_cv_membership.csv).
+## Raw versus DIP MobileNetV2
+
+AP's raw model reached 95.36% clean test accuracy, compared with 89.40% for the DIP model. Macro-F1 was about 0.93 raw (rounded roadmap value) and 0.8588 DIP (recomputed from AP's saved predictions). The roadmap reports approximately 35 s per epoch for raw and 13 s for DIP. These are historical training measurements. The tracked synthetic Gaussian corruption run reached 34.44% raw and 55.63% DIP. The noise covered the whole normalized input. See the [evidence reconciliation](PROJECT_GUIDE_AND_REPORT_INVENTORY.md#provenance-and-remaining-evidence) for the differing roadmap corruption numbers and the raw checkpoint handoff.

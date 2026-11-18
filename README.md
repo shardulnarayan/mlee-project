@@ -351,3 +351,10 @@ python -u -m src.classical_ml.group_cross_validation
 
 Note: `config.CLASSES` is not alphabetical, but `torchvision.ImageFolder` sorts classes
 alphabetically. Compare predictions by class name, not index.
+
+## Project documentation
+
+- [Project guide and report inventory](reports/PROJECT_GUIDE_AND_REPORT_INVENTORY.md)
+- [Team viva guide](reports/TEAM_VIVA_GUIDE.md)
+- [Results and discussion](reports/PJ_RESULTS_AND_DISCUSSION.md)
+- [Latest progress checkpoint](reports/progress/05_pj_report_evidence_and_viva.md)
