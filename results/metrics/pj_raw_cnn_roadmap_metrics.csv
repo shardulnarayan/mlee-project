@@ -1,0 +1,6 @@
+class,precision,recall,f1,support,source
+Healthy,1,1,1,6,"roadmap-MLEE-project.pdf pp. 18-19, rounded"
+Leaf_Miner,0.6,0.9,0.72,10,"roadmap-MLEE-project.pdf pp. 18-19, rounded"
+Red_Mite,1,1,1,45,"roadmap-MLEE-project.pdf pp. 18-19, rounded"
+Whitefly,0.97,0.87,0.92,45,"roadmap-MLEE-project.pdf pp. 18-19, rounded"
+Yellow_Mosaic,1,1,1,45,"roadmap-MLEE-project.pdf pp. 18-19, rounded"
