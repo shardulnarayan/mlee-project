@@ -1,0 +1,6 @@
+model,correct,support,accuracy,macro_f1,leaf_miner_recall,validation_macro_f1,source
+SVM_aug,134,151,0.8874172185430463,0.8016940762512842,0.4,0.8024,manifest-matched predictions
+RF_aug,141,151,0.9337748344370861,0.86105216622458,0.6,0.8578,manifest-matched predictions
+MobileNetV2_DIP,135,151,0.8940397350993378,0.8588411588411589,0.8,,manifest-matched predictions
+SVM_noaug,137,151,0.9072847682119205,0.7983944444302501,0.2,0.806,manifest-matched predictions
+RF_noaug,135,151,0.8940397350993378,0.7460928932837309,0.1,0.7685,manifest-matched predictions

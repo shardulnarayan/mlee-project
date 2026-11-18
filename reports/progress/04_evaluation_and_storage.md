@@ -10,6 +10,6 @@
 | Leaf Miner learning curve and feature visualization | Measured validation recall as Leaf Miner training source groups increased and compared HOG and MobileNetV2 features on the same 151 test crops. | [Learning curve](../../results/figures/leaf_miner_learning_curve.png) and [t-SNE figure](../../results/figures/hog_mobilenet_tsne.png) |
 | Dataset and checkpoint storage | The 1,004 matched raw images went from 96.11 MB to 18.83 MB after DIP (80.40% reduction). AP's MobileNetV2 checkpoint went from 9.144 MB to 2.654 MB with INT8 weight storage (70.98% reduction). Quantized weights were restored to FP32 for evaluation, so this measures storage only. | [Storage analysis](../PJ_RESULTS_AND_DISCUSSION.md#storage-before-and-after-dip) and [checkpoint CSV](../../results/storage_reduction/mobilenetv2_quantization.csv) |
 
-See [Results and Discussion](../PJ_RESULTS_AND_DISCUSSION.md) for methods, commands, and limitations. The matched raw-versus-processed classification results are still pending in this checkout.
+See [Results and Discussion](../PJ_RESULTS_AND_DISCUSSION.md) for methods, commands, and limitations. See [checkpoint 5](05_pj_report_evidence_and_viva.md) for the raw-versus-DIP results and recovered prediction evidence.
 
 - Five-fold source-group cross-validation now covers the three classical configurations. RF with LBP plus colour led on mean macro-F1 (0.8529 ± 0.0660). See the [CV summary](../../results/metrics/group_cv_summary.csv) and [report](../PJ_RESULTS_AND_DISCUSSION.md#five-fold-stratified-group-cross-validation).
