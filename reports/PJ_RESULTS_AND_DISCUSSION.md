@@ -104,3 +104,17 @@ PJ measured AP's original checkpoint against an INT8 weight-storage version of t
 The stored checkpoint saved 6.490 MB. Both evaluations used the same 151 DIP-processed test crops. The INT8 weights were restored to FP32 before inference because the installed PyTorch build lacked a supported INT8 execution backend. These measurements cover checkpoint storage and test predictions after rounding the weights. INT8 execution speed and peak memory were unmeasured. The higher accuracy is an observation on one test split.
 
 Reproduce with `python -u -m src.classical_ml.measure_quantized_storage`. See the [measurement CSV](../results/storage_reduction/mobilenetv2_quantization.csv).
+
+## Five-fold stratified group cross-validation
+
+PJ cross-validated three previously selected classical configurations on the 1,004 DIP-processed images. The splitter used the manifest's source groups with seed 42. Every image was held out exactly once, no source group crossed a fold boundary, and every held-out fold contained all five classes. Each fold contained 200–201 held-out crops, including 8–9 Healthy crops and 12–13 Leaf Miner crops. Balancing augmentation and SVM scaling and PCA were fitted within each training fold.
+
+| Configuration | Accuracy (mean ± SD) | Macro-F1 (mean ± SD) | Healthy recall (mean ± SD) | Leaf Miner recall (mean ± SD) |
+| --- | ---: | ---: | ---: | ---: |
+| SVM, HOG + LBP + colour | 89.44% ± 0.90 pp | 0.7709 ± 0.0247 | 80.83% ± 18.07 pp | 24.23% ± 19.83 pp |
+| Random Forest, HOG + LBP + colour | 90.83% ± 2.77 pp | 0.8061 ± 0.0305 | 88.33% ± 13.63 pp | 31.79% ± 13.06 pp |
+| Random Forest, LBP + colour | 93.02% ± 3.16 pp | 0.8529 ± 0.0660 | 90.56% ± 9.49 pp | 45.77% ± 26.42 pp |
+
+The LBP + colour Random Forest had the highest mean macro-F1 among the three configurations. Its Leaf Miner recall ranged from 16.67% to 84.62%, showing how strongly recall varied with the held-out groups despite consistently high overall accuracy. The sample SD describes variation across these five folds. The configurations were chosen in earlier analyses on this same dataset, so this is a stability check of fixed configurations. An independent assessment of model selection would require nested CV or fresh data. AP's MobileNetV2 checkpoint has already seen some would-be held-out images, so CNN and hybrid cross-validation require fold-specific training.
+
+Run `python -u -m src.classical_ml.group_cross_validation`. See the [fold metrics](../results/metrics/group_cv_folds.csv), [mean and SD for all metrics](../results/metrics/group_cv_summary.csv), and [fold membership](../results/metrics/group_cv_membership.csv).
