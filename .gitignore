@@ -33,3 +33,6 @@ AGENTS.md
 .codex/
 .agents/
 /src/dip/pipeline_claude.py
+
+# Superseded personal summary, preserved locally
+/reports/SN_README.md

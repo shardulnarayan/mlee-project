@@ -120,4 +120,112 @@ The LBP + colour Random Forest had the highest mean macro-F1 among the three con
 Run `python -u -m src.classical_ml.group_cross_validation`. See the [fold metrics](../results/metrics/group_cv_folds.csv), [mean and SD for all metrics](../results/metrics/group_cv_summary.csv), and [fold membership](../results/metrics/group_cv_membership.csv).
 ## Raw versus DIP MobileNetV2
 
-AP's raw model reached 95.36% clean test accuracy, compared with 89.40% for the DIP model. Macro-F1 was about 0.93 raw (rounded roadmap value) and 0.8588 DIP (recomputed from AP's saved predictions). The roadmap reports approximately 35 s per epoch for raw and 13 s for DIP. These are historical training measurements. The tracked synthetic Gaussian corruption run reached 34.44% raw and 55.63% DIP. The noise covered the whole normalized input. See the [evidence reconciliation](PROJECT_GUIDE_AND_REPORT_INVENTORY.md#provenance-and-remaining-evidence) for the differing roadmap corruption numbers and the raw checkpoint handoff.
+AP's raw model reached 95.36% clean test accuracy, compared with 89.40% for the DIP model. Macro-F1 was about 0.93 raw (rounded roadmap value) and 0.8588 DIP (recomputed from AP's saved predictions). The roadmap reports approximately 35 s per epoch for raw and 13 s for DIP. These are historical training measurements. The tracked synthetic Gaussian corruption run reached 34.44% raw and 55.63% DIP. The noise covered the whole normalized input. See the [evidence reconciliation](REPRODUCING.md#provenance-and-remaining-evidence) for the differing roadmap corruption numbers and the raw checkpoint handoff.
+
+
+## Augmentation comparison
+
+### Matched setup
+
+- Data: `data/processed` from the team DIP pipeline, shared split, **151 test images**
+- Features: HOG + LBP + HSV colour histograms, 6208 values per image
+- Models: SVM (scaler, PCA 95%, RBF) and Random Forest (300 trees), both
+  `class_weight="balanced"`; settings chosen on validation by macro-F1
+- The only difference: **after** adds augmented copies of the small classes to the
+  training set (Leaf_Miner +167, Healthy +181; flips, rotations, brightness/contrast).
+  Validation and test images are never augmented.
+
+### Before and after augmentation
+
+| Model | Accuracy | Macro-F1 | Leaf_Miner recall | Healthy recall |
+|---|---|---|---|---|
+| SVM, before | 90.7% | 0.798 | 20% (2/10) | 83% (5/6) |
+| SVM, after | 88.7% | 0.802 | 40% (4/10) | 100% (6/6) |
+| Random Forest, before | 89.4% | 0.746 | 10% (1/10) | 83% (5/6) |
+| **Random Forest, after** | **93.4%** | **0.861** | **60% (6/10)** | **100% (6/6)** |
+
+Per-class F1, Random Forest:
+
+| Class | Before | After |
+|---|---|---|
+| Whitefly | 0.89 | 0.92 |
+| Red_Mite | 0.98 | 1.00 |
+| Yellow_Mosaic | 0.94 | 0.97 |
+| Leaf_Miner | **0.15** | **0.67** |
+| Healthy | 0.77 | 0.75 |
+
+### Augmentation trade-offs
+
+- **Healthy precision fell** (Random Forest 0.71 to 0.60): the model now predicts
+  Healthy more often, catching all 6 but with more false alarms. Healthy F1 is roughly
+  unchanged (0.77 to 0.75).
+- **SVM gained little overall** (macro-F1 0.798 to 0.802); its Whitefly recall dropped
+  (89% to 80%).
+- **Tiny test sets:** Healthy has 6 test images and Leaf_Miner 10, so one image changes
+  recall by 10-17 points.
+- **Speed:** SVM about 35 ms per image, Random Forest about 90 ms (laptop, not idle;
+  to be re-measured).
+
+## CNN training, class-level comparison and robustness
+
+### Training recipe (identical for raw and processed)
+
+MobileNetV2 pre-trained on ImageNet, feature layers frozen, new 5-class head. Adam (lr 0.001),
+cross-entropy, 10 epochs, batch 16, `WeightedRandomSampler` for imbalance, train-time flips,
+±20° rotation and colour jitter; the best epoch by val accuracy is saved.
+Scripts: `src/train_dl.py` → `models/mobilenetv2_cucumber.pth`,
+`src/train_dl_raw.py` → `models/mobilenetv2_raw.pth`.
+The processed model peaked at **94.04% val accuracy at epoch 5**.
+
+### Ablation: raw vs DIP-processed (same 151 test images)
+
+| Class F1 | DIP-processed | Raw | Better |
+|---|---|---|---|
+| Healthy | 1.00 | 1.00 | Tie |
+| Leaf_Miner | 0.50 (P 0.36, R 0.80) | 0.72 (P 0.60, R 0.90) | Raw |
+| Red_Mite | 1.00 | 1.00 | Tie |
+| Whitefly | 0.81 (R 0.69) | 0.92 (R 0.87) | Raw |
+| Yellow_Mosaic | 0.99 | 1.00 | Raw |
+| **Accuracy** | **89.4%** | **95.4%** | Raw |
+| **Macro-F1** | **0.86** | **0.93** | Raw |
+| Training time / epoch | ~13 s | ~35 s | DIP (2.7x faster) |
+
+Why raw wins on clean data (team analysis): (1) DIP resizes to 224 before training, which may
+blur tiny Whitefly / Leaf_Miner detail; (2) each class comes from a different source with a
+distinctive background, so the raw model can use background as a shortcut, and the test set
+shares those backgrounds. Main error in the DIP model: 14 of 45 Whitefly predicted as Leaf_Miner
+(both are un-segmented crops).
+
+### Robustness test (`src/background_swap.py`)
+
+| Condition | Raw model | DIP model |
+|---|---|---|
+| Clean test set | 95.36% | 89.40% |
+| Gaussian noise (σ = 0.8 on normalised input) | 34.44% | 55.63% |
+| Drop | 60.9 pts | 33.8 pts |
+
+Effect: the DIP model loses about half as much. **Caveats:** despite the file name, this adds
+noise to the whole image; it does not swap backgrounds. The noise is unseeded, so reruns
+differ (an earlier run gave 33.77% vs 58.28%).
+
+### Grad-CAM (`src/gradcam.py`, `src/gradcam_raw.py`)
+
+One heatmap per class for each model in `results/figures/gradcam/` and `gradcam_raw/`.
+Team reading: the raw model attends to padding and image edges (e.g. Leaf_Miner, Yellow_Mosaic,
+Healthy); the DIP model attends to the insect, the tunnel and the mosaic patches. One image per
+class, so this is illustrative rather than statistical.
+
+---
+
+## Reconciling storage measurements
+
+| Measurement | Raw | Processed | Reduction | What it counts |
+|---|---|---|---|---|
+| PJ, `measure_quantized_storage.py` | 96.11 MB | 18.83 MB | **80.40%** | Only the 1,004 matched image pairs, decimal MB |
+| AP, `storage_metric.py` | 282.56 MiB | 26.87 MiB | 90.49% | Every file under `data/raw` and `data/processed`, including `_unused/` and `train_backup/` |
+
+**Use 80.40%** in the reports: it compares the same images. The 90.49% figure inflates the raw
+side with thousands of images that were never used. Model size: 9.144 MB (decimal, PJ) and
+8.74 MiB (binary, AP) describe essentially the same checkpoint in different units.
+
+---
