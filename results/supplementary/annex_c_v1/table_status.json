@@ -1,0 +1,8 @@
+{
+  "status": [
+    "Table 6: pending seeded training",
+    "Table 7: pending attention evaluation",
+    "Table 8: existing team holdout class metrics copied with model labels",
+    "Table 9: existing feature-ablation and grouped-CV evidence copied"
+  ]
+}

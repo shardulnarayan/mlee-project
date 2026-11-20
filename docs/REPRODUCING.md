@@ -60,6 +60,29 @@ Shared settings live in `src/config.py`: image size 224, seed 42 and five labels
 
 ## Source and output map
 
+### Annex C supplementary runner
+
+The `final_report/supplementary/` package provides seeded training and evaluation.
+See the
+[runner instructions](../final_report/supplementary/README.md) and
+[Annex C methods and evidence guide](../final_report/ANNEX_C_REPLACEMENT.md).
+
+```powershell
+python -m final_report.supplementary.run check
+python -m unittest final_report.supplementary.test_evidence
+python -u -m final_report.supplementary.run all
+```
+
+The full command trains nine CNNs and evaluates foreground attention and camera
+faults. Outputs go to `results/supplementary/annex_c_v1/`; existing team
+models/results are not overwritten. `tables` can export existing Table 8/9
+evidence without ML dependencies. Tables 6/7 remain pending until their training
+and evaluation stages finish. Default masks are HSV foreground proxies; fault
+settings are specified in the runner instructions. Checkpoints and generated
+images are ignored by Git.
+
+### Existing project modules
+
 | Path | What it does | Effect / output |
 |---|---|---|
 | `src/config.py` | Paths, `IMG_SIZE`, `SEED = 42`, 70/15/15, class list | Single source of truth |

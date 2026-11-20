@@ -36,3 +36,7 @@ AGENTS.md
 
 # Superseded personal summary, preserved locally
 /reports/SN_README.md
+
+# Supplementary rerun artifacts; CSV/JSON measurements remain reviewable
+/results/supplementary/**/checkpoints/
+/results/supplementary/**/label_free_images/

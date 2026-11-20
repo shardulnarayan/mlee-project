@@ -28,6 +28,12 @@ Raw MobileNetV2 led on clean images. In the tracked whole-input Gaussian-noise r
 
 ## Getting started
 
+Annex C reproducibility code is in
+[`final_report/supplementary/`](final_report/supplementary/README.md).
+It provides seeded CNN training, foreground-attention analysis and synthetic
+camera-fault evaluation. Execution status is recorded in `table_status.json`.
+See the [Annex C methods and evidence guide](final_report/ANNEX_C_REPLACEMENT.md).
+
 Run from the repository root in PowerShell:
 
 ```powershell

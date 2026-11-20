@@ -1,5 +1,18 @@
 # Results and Discussion
 
+## Annex C supplementary experiments
+
+The code in
+[`final_report/supplementary/`](../final_report/supplementary/README.md) supports
+three-seed CNN evaluation, quantitative Grad-CAM and synthetic camera-fault
+experiments. Outputs are stored under `results/supplementary/annex_c_v1/`.
+Tables 6/7 are pending execution in this output directory; completion is recorded
+in `table_status.json`. Default attention masks are foreground proxies, not
+annotated leaves. Camera-fault settings are documented in the runner instructions.
+The holdout, RF ablation, grouped-CV and INT8-storage results below retain their
+stated evaluation scope. See the
+[Annex C methods and evidence guide](../final_report/ANNEX_C_REPLACEMENT.md).
+
 ## Classification on DIP-processed images
 
 The augmented SVM and Random Forest trained by SN and the MobileNetV2 trained by AP were compared on the same 151 DIP-processed test images. PJ matched each model's saved predictions to the test manifest by filename and true label. Accuracy is the fraction of correctly classified images. Macro-F1 is the unweighted mean of the five class-level F1 scores.
